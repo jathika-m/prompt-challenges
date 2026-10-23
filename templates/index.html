@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CelebrAI — Your Personal AI Event Planner</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              gold: '#D4AF37',
+              goldHover: '#C5A028',
+              goldLight: '#F3E8B5',
+              dark: '#090D16',
+              darkNavy: '#0F172A',
+              cardDark: '#131B2E',
+              ivory: '#FAF9F6',
+              lightCard: '#FFFFFF',
+            }
+          },
+          fontFamily: {
+            serif: ['Cinzel', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col font-sans selection:bg-amber-400 selection:text-slate-950">
+
+  <!-- ==========================================
+       LOGIN & AUTHENTICATION VIEW (Section 1)
+       ========================================== -->
+  <section id="login-view" class="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden bg-[#070A11]">
+    <!-- Ambient Background Lighting -->
+    <div class="ambient-glow bg-amber-500/10 w-96 h-96 top-0 left-10"></div>
+    <div class="ambient-glow bg-blue-600/10 w-[500px] h-[500px] bottom-0 right-10"></div>
+
+    <div class="w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-[#0C1220]/95 backdrop-blur-xl grid grid-cols-1 lg:grid-cols-12 relative z-10">
+      
+      <!-- Left Side: Login Form -->
+      <div class="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-between">
+        <div>
+          <!-- CelebrAI Branding -->
+          <div class="flex items-center gap-3 mb-8">
+            <div class="w-11 h-11 rounded-2xl gold-gradient-bg flex items-center justify-center shadow-md shadow-amber-500/20">
+              <i data-lucide="sparkles" class="w-6 h-6 text-slate-950"></i>
+            </div>
+            <div>
+              <span class="font-serif text-2xl font-bold tracking-wider gold-gradient-text block leading-none">CelebrAI</span>
+              <span class="text-[11px] text-amber-200/70 tracking-widest uppercase font-medium">Your Personal AI Event Planner</span>
+            </div>
+          </div>
+
+          <!-- Headline -->
+          <div class="mb-6">
+            <h1 class="font-serif text-3xl font-bold text-white mb-2">Welcome Back</h1>
+            <p class="text-sm text-slate-400">Sign in to coordinate your weddings, birthdays, anniversaries, and community galas.</p>
+          </div>
+
+          <!-- Error Message Banner -->
+          <div id="login-error" class="hidden mb-4 p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2"></div>
+
+          <!-- Login Form -->
+          <form onsubmit="Auth.handleLogin(event)" class="space-y-4" novalidate>
+            <!-- Email Field -->
+            <div>
+              <label for="login-email" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                Email Address
+              </label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i data-lucide="mail" class="w-4 h-4"></i>
+                </span>
+                <input 
+                  type="email" 
+                  id="login-email" 
+                  placeholder="alexa.celebrate@example.com"
+                  autocomplete="email"
+                  class="w-full pl-10 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                />
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="login-password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                  Password
+                </label>
+                <button 
+                  type="button" 
+                  onclick="Auth.openModal('forgot-modal')" 
+                  class="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer">
+                  Forgot Password?
+                </button>
+              </div>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i data-lucide="lock" class="w-4 h-4"></i>
+                </span>
+                <input 
+                  type="password" 
+                  id="login-password" 
+                  placeholder="••••••••••••"
+                  autocomplete="current-password"
+                  class="w-full pl-10 pr-11 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                />
+                <button 
+                  type="button" 
+                  id="password-toggle-btn"
+                  onclick="Auth.togglePasswordVisibility('login-password', 'password-toggle-btn')"
+                  class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white cursor-pointer transition-colors"
+                  aria-label="Toggle password visibility">
+                  <i data-lucide="eye" class="w-5 h-5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Remember Me -->
+            <div class="flex items-center gap-2 pt-1">
+              <input 
+                type="checkbox" 
+                id="remember-me" 
+                checked
+                class="w-4 h-4 rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-amber-400 focus:ring-offset-slate-900" 
+              />
+              <label for="remember-me" class="text-xs text-slate-400 cursor-pointer select-none">
+                Remember this device for seamless access
+              </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit" 
+              id="login-submit-btn"
+              class="w-full py-3.5 px-6 rounded-xl font-bold text-sm gold-gradient-bg text-slate-950 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2">
+              <span>Sign In to Dashboard</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </form>
+
+          <!-- Working Demo Auth Box -->
+          <div class="mt-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-1.5 font-bold text-amber-300">
+                <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i>
+                <span>Working Demo Authentication</span>
+              </div>
+              <button 
+                type="button" 
+                onclick="Auth.fillDemoCredentials()"
+                class="text-[11px] underline text-amber-400 hover:text-amber-200 cursor-pointer font-semibold">
+                Auto-Fill Demo
+              </button>
+            </div>
+            <p class="text-slate-300 leading-relaxed mb-2.5">
+              Experience the full planner with pre-configured host credentials:
+              <br/>
+              <span class="text-white font-mono bg-slate-900/60 px-1.5 py-0.5 rounded text-[11px]">alexa.celebrate@example.com</span> / 
+              <span class="text-white font-mono bg-slate-900/60 px-1.5 py-0.5 rounded text-[11px]">CelebrAI2026!</span>
+            </p>
+            <button 
+              type="button"
+              onclick="Auth.fillDemoCredentials(); Auth.handleLogin();"
+              class="w-full py-2 px-3 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 border border-amber-400/30 font-medium text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>One-Click Instant Demo Login</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Create Account Option -->
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+          <span>Don't have an account yet?</span>
+          <button 
+            type="button" 
+            onclick="Auth.openModal('register-modal')" 
+            class="font-semibold text-amber-400 hover:text-amber-300 underline cursor-pointer">
+            Create Account
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Side: Event-Related Visual Showcase (Split Layout) -->
+      <div class="lg:col-span-5 relative hidden lg:flex flex-col justify-between p-10 bg-slate-950 overflow-hidden">
+        <!-- High-Quality Event Photograph (Ballroom & Tablescape setup with ambient lighting) -->
+        <img 
+          src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1200&q=80" 
+          alt="Elegant event celebration setup" 
+          onerror="window.handleImageError(this, 'CelebrAI Evening Celebration', 'Venue')"
+          class="absolute inset-0 w-full h-full object-cover opacity-60"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
+
+        <!-- Top Floating Tag -->
+        <div class="relative z-10 flex items-center gap-2">
+          <span class="py-1 px-3 rounded-full bg-slate-900/80 border border-amber-500/30 text-amber-300 text-xs font-semibold backdrop-blur-md flex items-center gap-1.5">
+            <i data-lucide="gem" class="w-3.5 h-3.5"></i>
+            <span>Curated Event Intelligence</span>
+          </span>
+        </div>
+
+        <!-- Bottom Quote & Floating Badge -->
+        <div class="relative z-10 space-y-4">
+          <div class="p-5 rounded-2xl glass-panel-dark border-amber-500/20 shadow-xl">
+            <div class="flex items-center gap-1 text-amber-400 mb-2">
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+            </div>
+            <p class="text-sm font-serif italic text-white leading-relaxed">
+              "CelebrAI made our event planning so easy! The theme ideas were amazing and saved us hours of research."
+            </p>
+            <div class="mt-3 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-amber-400/20 border border-amber-400 text-amber-300 font-bold text-xs flex items-center justify-center">
+                P
+              </div>
+              <span class="text-xs text-slate-300 font-medium">Priya &amp; Arjun • Heritage Celebration</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 text-xs text-slate-400">
+            <span class="flex items-center gap-1 text-emerald-400 font-medium">
+              <i data-lucide="shield-check" class="w-4 h-4"></i> Secure &amp; Private
+            </span>
+            <span>•</span>
+            <span>Demo Mode Ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       AUTHENTICATED DASHBOARD APPLICATION SHELL
+       ========================================== -->
+  <div id="app-shell" class="hidden min-h-screen flex flex-col bg-brand-dark">
+    
+    <!-- Top Ambient Lights for Dark Shell -->
+    <div class="ambient-glow bg-amber-500/5 w-[600px] h-[400px] -top-20 left-1/4"></div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-[#090D16]/90 backdrop-blur-md border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        
+        <!-- CelebrAI Brand Logo -->
+        <a href="#home" onclick="App.switchTab('home')" class="flex items-center gap-3 group cursor-pointer">
+          <div class="w-10 h-10 rounded-xl gold-gradient-bg flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+            <i data-lucide="sparkles" class="w-5 h-5 text-slate-950"></i>
+          </div>
+          <div>
+            <span class="font-serif text-2xl font-bold tracking-wider gold-gradient-text block leading-none">CelebrAI</span>
+            <span class="text-[10px] text-amber-200/70 tracking-widest uppercase font-medium">Event Planner</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Items -->
+        <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+          <button 
+            id="nav-link-home" 
+            data-title="Home"
+            onclick="App.switchTab('home')"
+            class="px-4 py-2 rounded-lg text-sm text-amber-300 font-semibold hover:text-white transition-colors cursor-pointer flex items-center">
+            Home <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block ml-1 mb-0.5"></span>
+          </button>
+          
+          <button 
+            id="nav-link-planner" 
+            data-title="Plan an Event"
+            onclick="App.switchTab('planner')"
+            class="px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white transition-colors cursor-pointer">
+            Plan an Event
+          </button>
+
+          <button 
+            id="nav-link-my-events" 
+            data-title="My Events"
+            onclick="App.switchTab('my-events')"
+            class="px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5">
+            <span>My Events</span>
+            <span id="my-events-badge" class="hidden px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-400 text-slate-950">0</span>
+          </button>
+
+          <button 
+            id="nav-link-themes-catalog" 
+            data-title="Themes & Ideas"
+            onclick="App.switchTab('themes-catalog')"
+            class="px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white transition-colors cursor-pointer">
+            Themes &amp; Ideas
+          </button>
+
+          <button 
+            id="nav-link-vendors-tab" 
+            data-title="Vendors"
+            onclick="App.switchTab('vendors-tab')"
+            class="px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white transition-colors cursor-pointer">
+            Vendors
+          </button>
+        </nav>
+
+        <!-- Right User Profile Menu -->
+        <div class="relative flex items-center gap-3">
+          <!-- Demo Auth Pill -->
+          <div id="demo-auth-pill" class="hidden sm:flex items-center gap-1.5 bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs px-2.5 py-1 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span>Demo Mode</span>
+          </div>
+
+          <!-- Profile Trigger -->
+          <button 
+            id="profile-menu-button" 
+            type="button" 
+            onclick="App.toggleProfileDropdown()"
+            class="flex items-center gap-2.5 p-1.5 rounded-full hover:bg-slate-800/80 transition-colors border border-slate-700/60 cursor-pointer">
+            <img 
+              id="nav-user-avatar" 
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" 
+              alt="User profile" 
+              class="w-8 h-8 rounded-full object-cover border border-amber-400/40"
+            />
+            <span id="nav-user-name" class="hidden sm:inline text-sm font-medium text-slate-200">Alexa Vance</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 mr-1"></i>
+          </button>
+
+          <!-- Profile Dropdown Menu -->
+          <div 
+            id="profile-dropdown" 
+            class="hidden absolute right-0 top-14 w-64 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-2 z-50 text-xs">
+            <div class="p-3 border-b border-slate-800">
+              <span class="text-slate-400 block text-[11px] uppercase tracking-wider">Signed in as</span>
+              <span id="nav-user-role" class="text-amber-300 font-bold block mt-0.5">Lead Host &amp; Event Curator</span>
+            </div>
+            <div class="py-1">
+              <button 
+                onclick="App.switchTab('my-events'); App.toggleProfileDropdown();" 
+                class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white flex items-center gap-2 cursor-pointer">
+                <i data-lucide="calendar" class="w-4 h-4 text-amber-400"></i>
+                <span>My Planned Events</span>
+              </button>
+              <button 
+                onclick="App.switchTab('planner'); App.toggleProfileDropdown();" 
+                class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white flex items-center gap-2 cursor-pointer">
+                <i data-lucide="plus-circle" class="w-4 h-4 text-amber-400"></i>
+                <span>Create New Celebration</span>
+              </button>
+            </div>
+            <div class="pt-1 border-t border-slate-800">
+              <button 
+                type="button" 
+                onclick="Auth.logout()" 
+                class="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-500/10 text-rose-400 flex items-center gap-2 cursor-pointer font-medium">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span>Logout Session</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Hamburger Toggle -->
+          <button 
+            type="button" 
+            onclick="App.toggleMobileMenu()" 
+            class="md:hidden p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white cursor-pointer"
+            aria-label="Toggle navigation">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-nav-drawer" class="hidden md:hidden bg-slate-900 border-b border-slate-800 px-4 py-4 space-y-2">
+        <button 
+          id="mob-nav-link-home" 
+          onclick="App.switchTab('home')" 
+          class="w-full text-left px-4 py-2.5 rounded-xl text-sm text-amber-400 bg-slate-800/80 font-medium">
+          Home
+        </button>
+        <button 
+          id="mob-nav-link-planner" 
+          onclick="App.switchTab('planner')" 
+          class="w-full text-left px-4 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-slate-800">
+          Plan an Event
+        </button>
+        <button 
+          id="mob-nav-link-my-events" 
+          onclick="App.switchTab('my-events')" 
+          class="w-full text-left px-4 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-slate-800">
+          My Events
+        </button>
+        <button 
+          id="mob-nav-link-themes-catalog" 
+          onclick="App.switchTab('themes-catalog')" 
+          class="w-full text-left px-4 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-slate-800">
+          Themes &amp; Ideas
+        </button>
+        <button 
+          id="mob-nav-link-vendors-tab" 
+          onclick="App.switchTab('vendors-tab')" 
+          class="w-full text-left px-4 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-slate-800">
+          Vendors
+        </button>
+        <div class="pt-2 border-t border-slate-800">
+          <button 
+            onclick="Auth.logout()" 
+            class="w-full text-left px-4 py-2.5 rounded-xl text-sm text-rose-400 hover:bg-rose-500/10 font-medium flex items-center gap-2">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="flex-1">
+
+      <!-- ==========================================
+           TAB 1: HOME PAGE VIEW
+           ========================================== -->
+      <div id="view-home" class="space-y-0">
+        
+        <!-- HERO SECTION (Wide Panoramic Venue Banner Matching Design Reference) -->
+        <section class="relative pt-6 pb-12 sm:pt-8 sm:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <!-- Panoramic Hero Banner Container -->
+          <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-800 min-h-[440px] sm:min-h-[500px] flex items-center">
+            <!-- Full-Width Panoramic Venue Background Image -->
+            <img 
+              src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1920&q=80" 
+              alt="Grand Evening Celebration Venue" 
+              onerror="window.handleImageError(this, 'Grand Evening Celebration Venue', 'Venue')"
+              class="absolute inset-0 w-full h-full object-cover"
+            />
+            <!-- Rich Dark Gradients for Supreme Text Contrast and Luxury Mood -->
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/75 to-slate-950/40"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40"></div>
+
+            <!-- Hero Content Overlay (Grid: Left Text, Right Floating Card) -->
+            <div class="relative z-10 w-full p-6 sm:p-10 lg:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <!-- Left Copy -->
+              <div class="lg:col-span-8 space-y-5 max-w-2xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-amber-400/30 text-amber-300 text-xs font-semibold backdrop-blur-md">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span>CelebrAI Executive Event Suite</span>
+                </div>
+
+                <h1 class="font-serif text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.15] tracking-tight">
+                  Every Celebration Begins with a <span class="gold-gradient-text">Beautiful Plan.</span>
+                </h1>
+
+                <p class="text-sm sm:text-base text-slate-200/90 max-w-xl leading-relaxed drop-shadow-sm">
+                  Plan unforgettable moments with personalised ideas, smart budgets, and effortless organisation.
+                </p>
+
+                <!-- Two Buttons -->
+                <div class="flex flex-wrap items-center gap-3.5 pt-2">
+                  <button 
+                    type="button"
+                    onclick="App.switchTab('planner')"
+                    class="py-3.5 px-7 rounded-xl font-bold text-sm gold-gradient-bg text-slate-950 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 active:scale-95 transition-all flex items-center gap-2 cursor-pointer">
+                    <span>Plan an Event</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                  </button>
+
+                  <button 
+                    type="button"
+                    onclick="document.getElementById('themes-section').scrollIntoView({ behavior: 'smooth' })"
+                    class="py-3.5 px-6 rounded-xl font-semibold text-sm text-white bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 backdrop-blur-md shadow-sm active:scale-95 transition-all flex items-center gap-2 cursor-pointer">
+                    <span>Explore Ideas</span>
+                    <i data-lucide="compass" class="w-4 h-4 text-amber-400"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right Floating Glass Card (Matching Design Reference) -->
+              <div class="lg:col-span-4 flex justify-end">
+                <div class="w-full max-w-xs p-5 rounded-2xl glass-panel-dark border-amber-500/30 shadow-2xl backdrop-blur-xl relative">
+                  <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400 text-amber-400 flex items-center justify-center font-bold shrink-0">
+                      <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                      <h4 class="text-xs font-bold text-white tracking-wide uppercase">Your Next Great Celebration Awaits!</h4>
+                      <p class="text-[11px] text-slate-300 mt-1 leading-relaxed">Let's plan something extraordinary together.</p>
+                    </div>
+                  </div>
+                  <button 
+                    type="button"
+                    onclick="App.switchTab('planner')"
+                    class="mt-4 pt-3 border-t border-slate-700/60 w-full flex items-center justify-between text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors cursor-pointer">
+                    <span>Explore Planner</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics Bar Below Banner -->
+          <div class="pt-8 grid grid-cols-3 gap-4 text-left max-w-4xl">
+            <div>
+              <span class="font-serif text-2xl sm:text-3xl font-bold text-white block">98%</span>
+              <span class="text-xs text-slate-400">Stress-Free Planning</span>
+            </div>
+            <div>
+              <span class="font-serif text-2xl sm:text-3xl font-bold text-amber-400 block">12+</span>
+              <span class="text-xs text-slate-400">Curated Themes</span>
+            </div>
+            <div>
+              <span class="font-serif text-2xl sm:text-3xl font-bold text-white block">Dynamic</span>
+              <span class="text-xs text-slate-400">Budget Engine</span>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ==========================================
+             LIGHT CONTENT SECTION: WHAT ARE WE CELEBRATING? (Section 4 - 5 Column Grid)
+             ========================================== -->
+        <section id="celebrating-section" class="py-16 bg-brand-ivory text-slate-900 border-t border-slate-200">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center max-w-2xl mx-auto mb-12">
+              <span class="text-xs font-bold uppercase tracking-widest text-amber-700 block mb-2">Event Categories</span>
+              <h2 class="font-serif text-3xl sm:text-4xl font-bold text-slate-900">What Are We Celebrating?</h2>
+              <div class="w-16 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
+              <p class="text-slate-600 mt-3 text-sm sm:text-base">
+                Choose an event type to start planning your perfect celebration.
+              </p>
+            </div>
+
+            <!-- 5 Event Cards Grid (5 columns on desktop, 3 on tablet, 2 on mobile, matching reference) -->
+            <div id="event-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <!-- Dynamically populated via App.renderEventCards() -->
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- ==========================================
+             LIGHT CONTENT SECTION: DISCOVER THEMES & INSPIRATION (Redesigned Gallery)
+             ========================================== -->
+        <section id="themes-section" class="py-20 bg-[#F4F1EA] text-slate-900 border-t border-slate-300/70">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-amber-700 block mb-2">Aesthetic Collections</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold text-slate-900">Discover Themes &amp; Inspiration</h2>
+                <p class="text-slate-600 mt-2 text-sm sm:text-base max-w-xl">
+                  Find the perfect atmosphere for your next unforgettable celebration.
+                </p>
+              </div>
+              <div>
+                <button 
+                  onclick="App.switchTab('themes-catalog')"
+                  class="py-2.5 px-5 rounded-xl border border-slate-400/80 bg-white hover:border-amber-600 text-slate-800 text-xs font-semibold shadow-xs flex items-center gap-2 cursor-pointer transition-colors">
+                  <span>View All 12 Themes in Catalog</span>
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Category Filter Bar (All | Wedding | Birthday | Engagement | Anniversary | Community Event) -->
+            <div class="flex flex-wrap items-center gap-2 mb-10 pb-2 overflow-x-auto">
+              <button 
+                id="gallery-filter-all" 
+                onclick="App.filterGallery('all')" 
+                class="px-4 py-2 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 shadow-xs cursor-pointer transition-all">
+                All
+              </button>
+              <button 
+                id="gallery-filter-wedding" 
+                onclick="App.filterGallery('Wedding')" 
+                class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:border-amber-400 hover:text-amber-800 shadow-xs cursor-pointer transition-all">
+                Wedding
+              </button>
+              <button 
+                id="gallery-filter-birthday" 
+                onclick="App.filterGallery('Birthday')" 
+                class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:border-amber-400 hover:text-amber-800 shadow-xs cursor-pointer transition-all">
+                Birthday
+              </button>
+              <button 
+                id="gallery-filter-engagement" 
+                onclick="App.filterGallery('Engagement')" 
+                class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:border-amber-400 hover:text-amber-800 shadow-xs cursor-pointer transition-all">
+                Engagement
+              </button>
+              <button 
+                id="gallery-filter-anniversary" 
+                onclick="App.filterGallery('Anniversary')" 
+                class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:border-amber-400 hover:text-amber-800 shadow-xs cursor-pointer transition-all">
+                Anniversary
+              </button>
+              <button 
+                id="gallery-filter-community-event" 
+                onclick="App.filterGallery('Community Event')" 
+                class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:border-amber-400 hover:text-amber-800 shadow-xs cursor-pointer transition-all">
+                Community Event
+              </button>
+            </div>
+
+            <!-- 4-Column Responsive Themes Gallery Grid (4 desktop, 2 tablet, 1 mobile) -->
+            <div id="themes-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <!-- Populated via App.renderThemeCards() -->
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- ==========================================
+             LIGHT CONTENT SECTION: PERSONALISED IDEAS (Section 7)
+             ========================================== -->
+        <section id="ideas-section" class="py-20 bg-brand-ivory text-slate-900 border-t border-slate-200">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+              <div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider mb-2">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  <span>Curated Editorial Recommendations (GenAI Integration Ready)</span>
+                </div>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold text-slate-900">Ideas You'll Love</h2>
+                <p class="text-slate-600 mt-2 text-sm sm:text-base max-w-xl">
+                  Thoughtfully styled concepts mapped to guest counts and budget tiers. Explore detailed moodboards or apply directly to your planner.
+                </p>
+              </div>
+
+              <!-- Filter Pills -->
+              <div class="flex flex-wrap gap-2 text-xs">
+                <button id="filter-idea-all" onclick="App.filterIdeas('all')" class="px-3.5 py-1.5 rounded-full bg-amber-400 text-slate-950 font-bold cursor-pointer transition-colors">All</button>
+                <button id="filter-idea-wedding" onclick="App.filterIdeas('Wedding')" class="px-3.5 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors">Wedding</button>
+                <button id="filter-idea-birthday" onclick="App.filterIdeas('Birthday')" class="px-3.5 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors">Birthday</button>
+                <button id="filter-idea-engagement" onclick="App.filterIdeas('Engagement')" class="px-3.5 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors">Engagement</button>
+                <button id="filter-idea-anniversary" onclick="App.filterIdeas('Anniversary')" class="px-3.5 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors">Anniversary</button>
+                <button id="filter-idea-community-event" onclick="App.filterIdeas('Community Event')" class="px-3.5 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors">Community</button>
+              </div>
+            </div>
+
+            <!-- Recommendations Grid (Horizontal Luxury Cards) -->
+            <div id="recommendations-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Populated via App.renderRecommendations() -->
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+
+      <!-- ==========================================
+           TAB 2: PLAN AN EVENT VIEW (Interactive Wizard & Budget Engine)
+           ========================================== -->
+      <div id="view-planner" class="hidden py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="mb-8 text-center max-w-2xl mx-auto">
+          <span class="text-xs font-bold uppercase tracking-widest text-amber-400 block mb-1">CelebrAI Planning Studio</span>
+          <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white">Design Your Celebration</h2>
+          <p class="text-slate-400 text-sm mt-2">
+            Configure your celebration type, chosen aesthetic theme, guest estimates, and live budget allocations.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Left: Planner Form -->
+          <div class="lg:col-span-7 bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200">
+            <h3 class="font-serif text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <i data-lucide="calendar-check" class="w-6 h-6 text-amber-600"></i>
+              <span>Celebration Details</span>
+            </h3>
+
+            <!-- Active Theme Banner (Populated via "Use This Theme") -->
+            <div id="planner-selected-theme-banner" class="hidden mb-6"></div>
+
+            <form onsubmit="App.handleSaveEvent(event)" class="space-y-6">
+              
+              <!-- Celebration Title -->
+              <div>
+                <label for="planner-title" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Celebration Title *
+                </label>
+                <input 
+                  type="text" 
+                  id="planner-title" 
+                  placeholder="e.g., Katherine &amp; Julian's Garden Wedding" 
+                  required
+                  class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
+
+              <!-- Event Type & Theme Row -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="planner-event-type" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Event Type
+                  </label>
+                  <select 
+                    id="planner-event-type"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-amber-500">
+                    <option value="Wedding">Wedding</option>
+                    <option value="Birthday">Birthday</option>
+                    <option value="Engagement">Engagement</option>
+                    <option value="Anniversary">Anniversary</option>
+                    <option value="Community Event">Community Event</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="planner-theme" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Selected Theme
+                  </label>
+                  <select 
+                    id="planner-theme"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-amber-500">
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+              </div>
+
+              <!-- Date & Venue Style -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="planner-date" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Target Date
+                  </label>
+                  <input 
+                    type="date" 
+                    id="planner-date" 
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label for="planner-venue" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Venue Style Preference
+                  </label>
+                  <select 
+                    id="planner-venue"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-amber-500">
+                    <option value="Indoor Grand Ballroom">Indoor Grand Ballroom</option>
+                    <option value="Botanical Conservatory / Glasshouse">Botanical Conservatory / Glasshouse</option>
+                    <option value="Rooftop Skyline Terrace">Rooftop Skyline Terrace</option>
+                    <option value="Beachside Shoreline Pavilion">Beachside Shoreline Pavilion</option>
+                    <option value="Restored Timber Barn &amp; Countryside Farm">Restored Timber Barn &amp; Countryside Farm</option>
+                    <option value="Historic Palace / Manor Salon">Historic Palace / Manor Salon</option>
+                    <option value="Private Art Gallery / Minimalist Loft">Private Art Gallery / Minimalist Loft</option>
+                    <option value="Public Botanical Park Pavilion">Public Botanical Park Pavilion</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Guest Count Slider & Input -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label for="planner-guests" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Estimated Guest Count
+                  </label>
+                  <div class="flex items-center gap-1 font-bold text-amber-700 text-sm">
+                    <input 
+                      type="number" 
+                      id="planner-guests" 
+                      value="120" 
+                      min="10" 
+                      max="1000" 
+                      class="w-20 px-2 py-1 bg-slate-100 border border-slate-300 rounded text-right font-bold"
+                    />
+                    <span>Guests</span>
+                  </div>
+                </div>
+                <input 
+                  type="range" 
+                  id="planner-guests-slider" 
+                  min="10" 
+                  max="500" 
+                  step="5" 
+                  value="120" 
+                  class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer"
+                />
+              </div>
+
+              <!-- Budget Slider & Input -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label for="planner-budget" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Estimated Total Budget (USD)
+                  </label>
+                  <div class="flex items-center gap-1 font-bold text-amber-700 text-sm">
+                    <span>$</span>
+                    <input 
+                      type="number" 
+                      id="planner-budget" 
+                      value="28000" 
+                      min="1000" 
+                      max="200000" 
+                      step="500" 
+                      class="w-28 px-2 py-1 bg-slate-100 border border-slate-300 rounded text-right font-bold"
+                    />
+                  </div>
+                </div>
+                <input 
+                  type="range" 
+                  id="planner-budget-slider" 
+                  min="2000" 
+                  max="100000" 
+                  step="1000" 
+                  value="28000" 
+                  class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer"
+                />
+                <span class="text-[11px] text-slate-400 mt-1 block">Drag slider to adjust and see live allocation forecast</span>
+              </div>
+
+              <!-- Notes & Vision -->
+              <div>
+                <label for="planner-notes" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Specific Vision / Special Requests
+                </label>
+                <textarea 
+                  id="planner-notes" 
+                  rows="3" 
+                  placeholder="e.g., Champagne tower moment at 9:00 PM, outdoor botanical bar, dietary restrictions for vegan guests..."
+                  class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-amber-500"></textarea>
+              </div>
+
+              <!-- Submit -->
+              <div class="pt-4">
+                <button 
+                  type="submit" 
+                  id="planner-save-btn"
+                  class="w-full py-4 px-6 rounded-xl font-bold text-sm gold-gradient-bg text-slate-950 shadow-lg hover:shadow-xl active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                  <span>Save to My Events</span>
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Live Budget Allocation Preview Engine -->
+          <div class="lg:col-span-5 space-y-6">
+            <div class="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 sm:p-8 shadow-xl text-white">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                <div>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400 block">Smart Financial Forecasting</span>
+                  <h4 class="font-serif text-xl font-bold text-white">Budget Allocation Engine</h4>
+                </div>
+                <div class="text-right">
+                  <span class="text-[11px] text-slate-400 block">Estimated Cost/Guest</span>
+                  <span id="planner-cost-per-guest" class="text-lg font-bold text-amber-300">$233</span>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <!-- Venue -->
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="font-medium text-slate-300 flex items-center gap-1.5">
+                      <i data-lucide="building" class="w-3.5 h-3.5 text-amber-400"></i> Venue &amp; Facilities (35%)
+                    </span>
+                    <span id="alloc-venue" class="font-bold text-amber-300">$9,800</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2">
+                    <div class="bg-amber-400 h-2 rounded-full" style="width: 35%"></div>
+                  </div>
+                </div>
+
+                <!-- Catering -->
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="font-medium text-slate-300 flex items-center gap-1.5">
+                      <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-400"></i> Catering, Bar &amp; Service (30%)
+                    </span>
+                    <span id="alloc-catering" class="font-bold text-amber-300">$8,400</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2">
+                    <div class="bg-amber-400 h-2 rounded-full" style="width: 30%"></div>
+                  </div>
+                </div>
+
+                <!-- Decor -->
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="font-medium text-slate-300 flex items-center gap-1.5">
+                      <i data-lucide="flower-2" class="w-3.5 h-3.5 text-amber-400"></i> Florals &amp; Decor Production (15%)
+                    </span>
+                    <span id="alloc-decor" class="font-bold text-amber-300">$4,200</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2">
+                    <div class="bg-amber-400 h-2 rounded-full" style="width: 15%"></div>
+                  </div>
+                </div>
+
+                <!-- Photo/Video -->
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="font-medium text-slate-300 flex items-center gap-1.5">
+                      <i data-lucide="camera" class="w-3.5 h-3.5 text-amber-400"></i> Photography &amp; Cinematography (12%)
+                    </span>
+                    <span id="alloc-photo" class="font-bold text-amber-300">$3,360</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2">
+                    <div class="bg-amber-400 h-2 rounded-full" style="width: 12%"></div>
+                  </div>
+                </div>
+
+                <!-- Music & Entertainment -->
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="font-medium text-slate-300 flex items-center gap-1.5">
+                      <i data-lucide="music" class="w-3.5 h-3.5 text-amber-400"></i> Entertainment &amp; Sound (8%)
+                    </span>
+                    <span id="alloc-music" class="font-bold text-amber-300">$2,240</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2">
+                    <div class="bg-amber-400 h-2 rounded-full" style="width: 8%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-8 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-slate-300 flex items-start gap-2.5">
+                <i data-lucide="info" class="w-4 h-4 text-amber-400 mt-0.5 shrink-0"></i>
+                <span>These allocations represent luxury industry benchmarks. You can adjust line items as you confirm specific vendor contracts.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ==========================================
+           TAB 3: MY EVENTS VIEW
+           ========================================== -->
+      <div id="view-my-events" class="hidden py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-amber-400 block mb-1">Saved Plans</span>
+            <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white">My Planned Events</h2>
+          </div>
+          <button 
+            onclick="App.switchTab('planner')"
+            class="py-3 px-6 rounded-xl font-bold text-xs gold-gradient-bg text-slate-950 shadow flex items-center gap-2 cursor-pointer w-fit">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Plan New Event</span>
+          </button>
+        </div>
+
+        <!-- My Events Grid -->
+        <div id="my-events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Populated via App.renderUserEvents() -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="my-events-empty" class="hidden p-12 text-center bg-slate-900 border border-slate-800 rounded-3xl max-w-md mx-auto">
+          <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-amber-400 flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="calendar" class="w-8 h-8"></i>
+          </div>
+          <h3 class="font-serif text-xl font-bold text-white mb-2">No Celebrations Saved Yet</h3>
+          <p class="text-xs text-slate-400 mb-6">Choose an event category or theme to begin building your personalized celebration plan.</p>
+          <button 
+            onclick="App.switchTab('planner')" 
+            class="py-3 px-6 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs cursor-pointer">
+            Start Planning Now
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ==========================================
+           TAB 4: THEMES & IDEAS CATALOGUE VIEW
+           ========================================== -->
+      <div id="view-themes-catalog" class="hidden py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="mb-10 text-center max-w-2xl mx-auto">
+          <span class="text-xs font-bold uppercase tracking-widest text-amber-400 block mb-1">CelebrAI Style Directory</span>
+          <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white">Discover Themes &amp; Inspiration Library</h2>
+          <p class="text-slate-400 text-sm mt-2">
+            Find the perfect atmosphere for your next unforgettable celebration. Explore complete aesthetic blueprints, color harmonies, lighting schemes, and budgeting ranges.
+          </p>
+
+          <!-- Category Filter Bar -->
+          <div class="flex flex-wrap items-center justify-center gap-2 mt-6">
+            <button id="filter-btn-all" onclick="App.filterCatalog('all')" class="px-4 py-2 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 cursor-pointer">All</button>
+            <button id="filter-btn-wedding" onclick="App.filterCatalog('Wedding')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white cursor-pointer">Wedding</button>
+            <button id="filter-btn-birthday" onclick="App.filterCatalog('Birthday')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white cursor-pointer">Birthday</button>
+            <button id="filter-btn-engagement" onclick="App.filterCatalog('Engagement')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white cursor-pointer">Engagement</button>
+            <button id="filter-btn-anniversary" onclick="App.filterCatalog('Anniversary')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white cursor-pointer">Anniversary</button>
+            <button id="filter-btn-community-event" onclick="App.filterCatalog('Community Event')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white cursor-pointer">Community Event</button>
+          </div>
+        </div>
+
+        <div id="catalog-themes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Populated via App.renderThemeCards() / App.filterCatalog() -->
+        </div>
+      </div>
+
+
+      <!-- ==========================================
+           TAB 5: VENDORS VIEW
+           ========================================== -->
+      <div id="view-vendors" class="hidden py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="mb-10 text-center max-w-2xl mx-auto">
+          <span class="text-xs font-bold uppercase tracking-widest text-amber-400 block mb-1">CelebrAI Preferred Partners</span>
+          <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white">Curated Vendors &amp; Artisans</h2>
+          <p class="text-slate-400 text-sm mt-2">
+            Vetted floral artists, production designers, caterers, and photographers ready to bring your vision to life.
+          </p>
+        </div>
+
+        <div id="vendors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Populated via App.renderVendors() -->
+        </div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#070A12] border-t border-slate-800 text-slate-400 text-xs py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg gold-gradient-bg flex items-center justify-center">
+              <i data-lucide="sparkles" class="w-4 h-4 text-slate-950"></i>
+            </div>
+            <span class="font-serif text-lg font-bold text-white">CelebrAI</span>
+          </div>
+          <p class="text-slate-500 leading-relaxed">
+            AI-powered celebrations, bespoke theme engineering, and elegant guest experiences.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Celebrations</h4>
+          <ul class="space-y-2">
+            <li><a href="javascript:void(0)" onclick="App.planEventPreselected('Wedding')" class="hover:text-amber-400 transition-colors">Weddings &amp; Receptions</a></li>
+            <li><a href="javascript:void(0)" onclick="App.planEventPreselected('Birthday')" class="hover:text-amber-400 transition-colors">Milestone Birthdays</a></li>
+            <li><a href="javascript:void(0)" onclick="App.planEventPreselected('Engagement')" class="hover:text-amber-400 transition-colors">Engagement Soirées</a></li>
+            <li><a href="javascript:void(0)" onclick="App.planEventPreselected('Anniversary')" class="hover:text-amber-400 transition-colors">Golden Anniversaries</a></li>
+            <li><a href="javascript:void(0)" onclick="App.planEventPreselected('Community Event')" class="hover:text-amber-400 transition-colors">Community Galas</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Navigation</h4>
+          <ul class="space-y-2">
+            <li><a href="javascript:void(0)" onclick="App.switchTab('home')" class="hover:text-amber-400 transition-colors">Home Dashboard</a></li>
+            <li><a href="javascript:void(0)" onclick="App.switchTab('planner')" class="hover:text-amber-400 transition-colors">Plan an Event</a></li>
+            <li><a href="javascript:void(0)" onclick="App.switchTab('my-events')" class="hover:text-amber-400 transition-colors">My Planned Events</a></li>
+            <li><a href="javascript:void(0)" onclick="App.switchTab('themes-catalog')" class="hover:text-amber-400 transition-colors">Themes &amp; Inspiration</a></li>
+            <li><a href="javascript:void(0)" onclick="App.switchTab('vendors-tab')" class="hover:text-amber-400 transition-colors">Vendor Directory</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Security &amp; Architecture</h4>
+          <p class="text-slate-500 leading-relaxed mb-2">
+            Built with modern security boundaries, decoupled demo authentication, and structured GenAI prompt readiness.
+          </p>
+          <span class="inline-block px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-[10px] text-amber-300">
+            Phase 1 • CelebrAI Core v1.0
+          </span>
+        </div>
+      </div>
+
+      <div class="max-w-7xl mx-auto pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500">
+        <span>&copy; 2026 CelebrAI — Your Personal AI Event Planner. All rights reserved.</span>
+        <span>Crafted for exquisite celebrations and timeless memories.</span>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ==========================================
+       MODAL 1: REDESIGNED TWO-COLUMN THEME DETAILED VIEW
+       ========================================== -->
+  <div id="theme-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 modal-backdrop overflow-y-auto">
+    <div class="relative w-full max-w-5xl bg-white rounded-3xl overflow-hidden shadow-2xl border border-amber-500/30 modal-content-animate my-auto max-h-[92vh] flex flex-col">
+      <div id="theme-detail-content" class="overflow-y-auto flex-1 flex flex-col">
+        <!-- Rendered dynamically by App.openThemeModal(themeId) -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL 2: PERSONALISED IDEA DETAILED VIEW
+       ========================================== -->
+  <div id="idea-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 modal-backdrop overflow-y-auto">
+    <div class="relative w-full max-w-4xl bg-white rounded-3xl overflow-hidden shadow-2xl border border-amber-500/30 modal-content-animate my-auto max-h-[90vh] flex flex-col">
+      <div id="idea-detail-content" class="overflow-y-auto flex-1 flex flex-col">
+        <!-- Rendered dynamically by App.openIdeaModal(ideaId) -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL 3: CREATE ACCOUNT (REGISTER)
+       ========================================== -->
+  <div id="register-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 shadow-2xl modal-content-animate">
+      <button 
+        type="button" 
+        onclick="Auth.closeModal('register-modal')" 
+        class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-8 h-8 rounded-lg gold-gradient-bg flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-4 h-4 text-slate-950"></i>
+        </div>
+        <h3 class="font-serif text-2xl font-bold text-white">Create Account</h3>
+      </div>
+
+      <div id="register-error" class="hidden mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs"></div>
+
+      <form onsubmit="Auth.handleRegister(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Full Name</label>
+          <input type="text" id="reg-name" required placeholder="Elena Rostova" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:border-amber-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email Address</label>
+          <input type="email" id="reg-email" required placeholder="elena@example.com" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:border-amber-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password</label>
+          <input type="password" id="reg-password" required placeholder="••••••••••••" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:border-amber-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Confirm Password</label>
+          <input type="password" id="reg-confirm-password" required placeholder="••••••••••••" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:border-amber-400 focus:outline-none" />
+        </div>
+        <button type="submit" id="reg-submit-btn" class="w-full py-3 rounded-xl font-bold text-sm gold-gradient-bg text-slate-950 shadow mt-2 cursor-pointer">
+          Sign Up &amp; Start Planning
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL 4: FORGOT PASSWORD
+       ========================================== -->
+  <div id="forgot-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 shadow-2xl modal-content-animate">
+      <button 
+        type="button" 
+        onclick="Auth.closeModal('forgot-modal')" 
+        class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-400 flex items-center justify-center">
+          <i data-lucide="key-round" class="w-4 h-4"></i>
+        </div>
+        <h3 class="font-serif text-xl font-bold text-white">Reset Password</h3>
+      </div>
+
+      <p class="text-xs text-slate-400 mb-4">
+        Enter the email associated with your CelebrAI account and we will send you a password recovery link.
+      </p>
+
+      <div id="forgot-message" class="hidden mb-4 p-3 rounded-xl bg-slate-800 text-xs"></div>
+
+      <form onsubmit="Auth.handleForgotPassword(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email Address</label>
+          <input type="email" id="forgot-email" required placeholder="alexa.celebrate@example.com" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:border-amber-400 focus:outline-none" />
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl font-bold text-sm gold-gradient-bg text-slate-950 shadow cursor-pointer">
+          Send Recovery Link
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       GLOBAL TOAST NOTIFICATION CONTAINER
+       ========================================== -->
+  <div id="toast-container" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 items-center pointer-events-none"></div>
+
+  <!-- Application Scripts -->
+  <script src="/static/js/data.js"></script>
+  <script src="/static/js/auth.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
