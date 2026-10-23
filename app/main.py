@@ -1,7 +1,10 @@
 """
 CelebrAI - FastAPI Backend Application
 """
+import os
 import uuid
+import hashlib
+from pathlib import Path
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, status
@@ -13,16 +16,27 @@ from app.data import (
     EventPlan, EVENT_TYPES, THEMES, RECOMMENDATIONS, VENDORS
 )
 
+# Base directories resolution for reliable multi-platform hosting
+BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_DIR = BASE_DIR / "static"
+TEMPLATES_DIR = BASE_DIR / "templates"
+
 app = FastAPI(
     title="CelebrAI - Your Personal AI Event Planner API",
     description="Backend API powering celebrations, themes, budgeting, and event curation.",
     version="1.0.0"
 )
 
-# Enable CORS for flexible environments
+# Configurable CORS for production security
+allowed_origins_env = os.environ.get("ALLOWED_ORIGINS", "*")
+if allowed_origins_env == "*":
+    allowed_origins = ["*"]
+else:
+    allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,7 +49,7 @@ USERS_DB: Dict[str, Dict[str, Any]] = {
         "id": "usr-demo-01",
         "email": "alexa.celebrate@example.com",
         "name": "Alexa Vance",
-        "password_hash": "demo_hashed_placeholder",
+        "password_hash": hashlib.sha256(b"CelebrAI2026!").hexdigest(),
         "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
         "role": "Lead Host & Event Curator",
         "is_demo": True
@@ -71,13 +85,23 @@ USER_EVENTS: List[Dict[str, Any]] = [
     }
 ]
 
-# Static assets and template mounting
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Static assets and template mounting with absolute filesystem paths
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.get("/")
 async def serve_index():
     """Serves the main CelebrAI web application interface."""
-    return FileResponse("templates/index.html")
+    return FileResponse(str(TEMPLATES_DIR / "index.html"))
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for cloud deployment platforms and load balancers."""
+    return {
+        "status": "healthy",
+        "service": "CelebrAI",
+        "timestamp": datetime.now().isoformat(),
+        "environment": os.environ.get("ENV", "production")
+    }
 
 # ----------------- AUTHENTICATION ENDPOINTS -----------------
 
@@ -139,7 +163,7 @@ async def login(credentials: LoginRequest):
             "id": f"usr-{uuid.uuid4().hex[:8]}",
             "email": email_clean,
             "name": email_clean.split("@")[0].replace(".", " ").title(),
-            "password_hash": "simulated_hash",
+            "password_hash": hashlib.sha256(credentials.password.encode()).hexdigest(),
             "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
             "role": "Event Host",
             "is_demo": False
@@ -180,7 +204,7 @@ async def register(payload: RegisterRequest):
         "id": f"usr-{uuid.uuid4().hex[:8]}",
         "email": email_clean,
         "name": payload.name.strip(),
-        "password_hash": "simulated_bcrypt_hash",
+        "password_hash": hashlib.sha256(payload.password.encode()).hexdigest(),
         "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
         "role": "Event Host",
         "is_demo": False
